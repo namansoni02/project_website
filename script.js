@@ -132,9 +132,8 @@ function parseCSVToData(text){
 // Part 2: Slotted-Page Storage Utilization Chart
 function plotSPData(){
   const labels = ['Variable', 'Fixed-64', 'Fixed-128', 'Fixed-256', 'Fixed-512'];
-  const payloadPct = [94.66, 157.31, 78.66, 39.33, 19.67];
-  const overheadPct = [3.96, 0, 0, 0, 0];
-  const wastePct = [1.38, -57.31, 21.34, 60.67, 80.33];
+  const utilizationPct = [94.66, null, 78.66, 39.33, 19.67];
+  const wastePct = [1.38, null, 21.34, 60.67, 80.33];
 
   const ctx = document.getElementById('spChart').getContext('2d');
   if(spChart) spChart.destroy();
@@ -143,8 +142,7 @@ function plotSPData(){
     data:{
       labels:labels,
       datasets:[
-        {label:'Payload %', data:payloadPct, backgroundColor:'rgba(139,111,71,0.7)', borderColor:'#8b6f47', borderWidth:1},
-        {label:'Overhead %', data:overheadPct, backgroundColor:'rgba(212,196,176,0.7)', borderColor:'#d4c4b0', borderWidth:1},
+        {label:'Utilization %', data:utilizationPct, backgroundColor:'rgba(139,111,71,0.7)', borderColor:'#8b6f47', borderWidth:1},
         {label:'Waste %', data:wastePct, backgroundColor:'rgba(122,107,93,0.7)', borderColor:'#7a6b5d', borderWidth:1}
       ]
     },

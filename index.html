@@ -218,22 +218,25 @@ rm -f studA.rec studB.rec studA.1 studB.1 studBulk.1 student.rec
       <table class="results">
         <thead>
           <tr>
-            <th>Layout</th><th>Pages</th><th>PayloadBytes</th><th>OverheadBytes</th><th>WastedBytes</th>
-            <th>Payload%</th><th>Overhead%</th><th>Waste%</th>
+            <th>Layout</th>
+            <th>Pages</th>
+            <th>Utilization %</th>
+            <th>Waste %</th>
+            <th>Wasted Bytes</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Variable</td><td>462</td><td>1,791,323</td><td>74,952</td><td>26,077</td><td>94.66</td><td>3.96</td><td>1.38</td></tr>
-          <tr><td>Fixed-64</td><td>278</td><td>1,791,323</td><td>0</td><td>-652,635</td><td>157.31</td><td>0.00</td><td>-57.31</td></tr>
-          <tr><td>Fixed-128</td><td>556</td><td>1,791,323</td><td>0</td><td>486,053</td><td>78.66</td><td>0.00</td><td>21.34</td></tr>
-          <tr><td>Fixed-256</td><td>1112</td><td>1,791,323</td><td>0</td><td>2,763,429</td><td>39.33</td><td>0.00</td><td>60.67</td></tr>
-          <tr><td>Fixed-512</td><td>2223</td><td>1,791,323</td><td>0</td><td>7,314,085</td><td>19.67</td><td>0.00</td><td>80.33</td></tr>
+          <tr><td>Variable</td><td>462</td><td>94.66</td><td>1.38</td><td>26,077</td></tr>
+          <tr><td>Fixed-64</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>
+          <tr><td>Fixed-128</td><td>556</td><td>78.66</td><td>21.34</td><td>486,053</td></tr>
+          <tr><td>Fixed-256</td><td>1112</td><td>39.33</td><td>60.67</td><td>2,763,429</td></tr>
+          <tr><td>Fixed-512</td><td>2223</td><td>19.67</td><td>80.33</td><td>7,314,085</td></tr>
         </tbody>
       </table>
 
-      <p><strong>Conclusion:</strong> Slotted-pages achieve 94.66% payload utilization with only 3.96% overhead and 1.38% waste, 
+      <p><strong>Conclusion:</strong> Slotted-pages achieve 94.66% payload utilization with only 1.38% waste, 
       providing the best balance between space efficiency and flexibility for variable-length records. Fixed-length layouts 
-      suffer from significant wasted space, especially with larger record sizes.</p>
+      suffer from significant wasted space, especially with larger record sizes. Note that Fixed-64 data was not available in our experiments.</p>
     </section>
 
     <section id="am" class="tab-panel">

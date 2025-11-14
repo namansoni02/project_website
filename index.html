@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CSL2050-Assignment</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>CSL3050 Database Systems</h1>
+    <p class="subtitle">ToyDB ASSIGNMENT</p>
+  </header>
+
+  <nav class="tabs" role="navigation">
+    <button class="tab-btn active" data-target="about">About</button>
+    <button class="tab-btn" data-target="howto">How to Run</button>
+    <button class="tab-btn" data-target="pf">PF Layer</button>
+    <button class="tab-btn" data-target="sp">Slotted-Page (SP)</button>
+    <button class="tab-btn" data-target="am">AM & Indexing</button>
+  </nav>
+
+  <main>
+    <section id="about" class="tab-panel active">
+      <h2>About this project</h2>
+      
+      <div class="about-container">
+        <div class="about-left">
+          <h3>Project Overview</h3>
+          <p>We extended the ToyDB PF layer to support configurable buffer pool sizes, selectable replacement
+          strategies (LRU &amp; MRU), explicit dirty marking, and comprehensive runtime statistics. We built a
+          slotted-page layer on top of the PF layer to store variable-length records (our student dataset) and
+          used the AM layer to explore indexing strategies.</p>
+
+          <p>The PF (Paged File) layer forms the foundation of our database system, managing storage at the level 
+          of individual pages within files. We enhanced it with a configurable buffer pool that can dynamically adjust 
+          its size and supports two replacement policies: LRU (Least Recently Used) for random-access patterns and 
+          MRU (Most Recently Used) for sequential scans. Our implementation tracks detailed statistics including 
+          logical and physical I/O operations, page hits, and misses to analyze performance under various workloads.</p>
+
+          <p>Building on top of the PF layer, we implemented a slotted-page structure to efficiently manage 
+          variable-length records. This design allows flexible storage of records with different sizes while 
+          maintaining good space utilization. We tested this with our student dataset and compared its performance 
+          against static fixed-length record management.</p>
+
+          <p>Finally, we explored the AM (Access Method) layer for B+ tree indexing. We implemented and compared 
+          three different approaches: building an index on existing data, incremental index construction, and 
+          optimized bulk-loading for pre-sorted data. Our experiments measured query completion time and page 
+          access patterns to identify the most efficient indexing strategy.</p>
+
+          <p>This site documents what we did, how to run the code and tests, and provides interactive tools to
+          visualize PF statistics collected during experiments.</p>
+        </div>
+        
+        <div class="about-right">
+          <h3>Project Authors</h3>
+          <div class="authors-grid">
+            <div class="author-card">
+              <img src="naman.jpg" alt="Naman Soni" class="author-img-large">
+              <div class="author-details">
+                <div class="author-name">Naman Soni</div>
+                <div class="author-roll">B23CS1094</div>
+              </div>
+            </div>
+            <div class="author-card">
+              <img src="japneet.jpg" alt="Japneet Singh" class="author-img-large">
+              <div class="author-details">
+                <div class="author-name">Japneet Singh</div>
+                <div class="author-roll">B23CS1022</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="project-info">
+            <p><strong>Course:</strong> CSL3050 - Database Management Systems</p>
+            <p><strong>Instructor:</strong> Dr. Awathare Nitin Niranjan</p>
+            <p><strong>Assignment:</strong> ToyDB Implementation</p>
+            <p><strong>Institution:</strong> IIT Jodhpur</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="howto" class="tab-panel">
+      <h2>How to Build &amp; Run</h2>
+      
+      <h3>Prerequisites</h3>
+      <ul>
+        <li>Linux or POSIX-like environment</li>
+        <li><code>gcc</code> (or compatible C compiler)</li>
+        <li><code>make</code></li>
+        <li>Data file: <code>data/student.txt</code> (provided)</li>
+      </ul>
+
+      <h3>Project Structure</h3>
+      <pre><code>DBS_project/
+  data/                 # Source data files (student.txt)
+  student.rec           # Generated record file outputs
+  toydb_v2/toydb/
+    pflayer/            # PF layer (buffer manager)
+    reclayer/           # REC layer (slotted-page heap)
+    amlayer/            # AM layer (B+ tree + benchmarks)
+      </code></pre>
+
+      <h3>Building Each Layer</h3>
+      
+      <h4>1. PF Layer (Paged File & Buffer Manager)</h4>
+      <pre><code>cd toydb_v2/toydb/pflayer
+make pflayer.o         # Build linkable PF object
+make testpf            # Build basic PF test
+make testpf_mix        # Build mixed workload test
+./testpf_mix LRU       # Run LRU replacement test
+./testpf_mix MRU       # Run MRU replacement test
+      </code></pre>
+
+      <h4>2. REC Layer (Record / Heap File)</h4>
+      <pre><code>cd ../reclayer
+make testrec           # Builds PF layer automatically if needed
+./testrec              # Execute record layer test
+      </code></pre>
+      <p><em>Artifacts:</em> <code>rec.o</code>, <code>student.rec</code> created during test runs.</p>
+
+      <h4>3. AM Layer & Index Benchmarks</h4>
+      <pre><code>cd ../amlayer
+make indexbench        # Build B+ tree + aggregated benchmark
+./indexbench           # Run index build comparison
+      </code></pre>
+      <p>Compares three index build strategies:</p>
+      <ul>
+        <li><strong>Post-build:</strong> Build heap file first, then create index</li>
+        <li><strong>Incremental:</strong> Build heap and index simultaneously</li>
+        <li><strong>Bulk-sorted:</strong> Pre-sort keys, use bottom-up bulk loader</li>
+      </ul>
+
+      <h3>Cleaning Up</h3>
+      <pre><code># Remove build artifacts from each layer
+cd toydb_v2/toydb/pflayer && rm -f *.o testpf testhash testpf_mix
+cd ../reclayer && make clean
+cd ../amlayer && rm -f *.o indexbench indexbench_simple
+
+# Remove generated database files
+rm -f studA.rec studB.rec studA.1 studB.1 studBulk.1 student.rec
+      </code></pre>
+
+      <h3>Key Components</h3>
+      <ul>
+        <li><strong>PF Layer:</strong> Page allocation, buffer pool, LRU/MRU replacement policies, I/O statistics</li>
+        <li><strong>REC Layer:</strong> Slotted-page variable-length record storage, returns RID {page, slot}</li>
+        <li><strong>AM Layer:</strong> B+ tree indexing with insert/search/scan operations plus bulk loading for sorted data</li>
+      </ul>
+    </section>
+
+    <section id="pf" class="tab-panel">
+      <h2>PF Layer — Buffering theory &amp; results</h2>
+      <p>The PF layer is our page-cache engine. We pinned its buffer pool size at runtime and experimented with two extreme
+      replacement policies: <strong>LRU</strong> (Least Recently Used) evicts the page that has stayed untouched the longest, which is great
+      for random workloads; <strong>MRU</strong> (Most Recently Used) drops the hottest page immediately, a surprisingly effective strategy
+      when we stream sequential files where the last page is rarely reused.</p>
+
+      <p>Every PF call records logical operations (PF_GetThisPage, PF_GetNextPage, PF_AllocPage, etc.) alongside physical hits and
+      misses. By replaying <code>testpf_mix</code> with write ratios from 0% to 100%, we captured how often each policy had to touch disk,
+      how many writes it flushed, and how many requests were satisfied from cache.</p>
+
+      <div class="stats-plot">
+        <div class="chart-header">
+          <div>
+            <h4>Performance comparison — LRU vs MRU</h4>
+            <p>We ran <strong>testpf_mix</strong> with read-heavy to write-heavy mixes (0%–100% reads) and plotted the
+            resulting logical/physical I/O plus cache hit/miss stats for both replacement policies.</p>
+          </div>
+          <div class="chart-controls">
+            <label for="metricSelect">Y-axis metric</label>
+            <select id="metricSelect">
+              <option value="physicalIO">Total physical I/O</option>
+              <option value="physicalRead">Physical read</option>
+              <option value="physicalWrite">Physical write</option>
+              <option value="pageHit">Page hit</option>
+              <option value="pageMiss">Page miss</option>
+              <option value="logicalRead">Logical read</option>
+              <option value="logicalWrite">Logical write</option>
+            </select>
+          </div>
+        </div>
+
+        <canvas id="pfChart" width="900" height="420"></canvas>
+        <p class="hint">Dataset: mix %, logical/physical I/O, and hit/miss counts gathered from our ToyDB traces.</p>
+      </div>
+    </section>
+
+    <section id="sp" class="tab-panel">
+      <h2>Slotted-Page (SP) Layer — What we did</h2>
+      <p>We implemented a slotted-page structure to store variable-length records. We used it to store the
+      student dataset and implemented utilities to load and sequentially scan records.</p>
+
+      <h3>What is a Slotted-Page?</h3>
+      <p>A slotted-page is a flexible page organization technique used to manage variable-length records efficiently. 
+      Each page is divided into three main sections:</p>
+      <ul>
+        <li><strong>Page Header:</strong> Contains metadata like the number of slots and free space pointer</li>
+        <li><strong>Slot Directory:</strong> An array of (offset, length) pairs that grows from the beginning of the page. 
+        Each slot points to the location and size of a record within the page</li>
+        <li><strong>Free Space:</strong> The middle region between the slot directory and the actual record data</li>
+        <li><strong>Record Data:</strong> The actual records stored from the end of the page, growing backwards toward the slot directory</li>
+      </ul>
+      <p>This design allows records to be inserted, deleted, and updated without external fragmentation. When a record is 
+      deleted, its space can be reclaimed through compaction, and the slot directory entries can be reused. The slot directory 
+      provides stable record identifiers (RIDs) even when records move within a page during compaction.</p>
+
+      <h3>Experiments — Static vs Slotted</h3>
+      <p>We compared space utilization for slotted-page vs static fixed-length records (64–512 bytes). Our results:</p>
+      
+      <div class="stats-plot">
+        <h4>Storage Utilization Comparison</h4>
+        <canvas id="spChart" width="800" height="400"></canvas>
+      </div>
+
+      <table class="results">
+        <thead>
+          <tr>
+            <th>Layout</th><th>Pages</th><th>PayloadBytes</th><th>OverheadBytes</th><th>WastedBytes</th>
+            <th>Payload%</th><th>Overhead%</th><th>Waste%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Variable</td><td>462</td><td>1,791,323</td><td>74,952</td><td>26,077</td><td>94.66</td><td>3.96</td><td>1.38</td></tr>
+          <tr><td>Fixed-64</td><td>278</td><td>1,791,323</td><td>0</td><td>-652,635</td><td>157.31</td><td>0.00</td><td>-57.31</td></tr>
+          <tr><td>Fixed-128</td><td>556</td><td>1,791,323</td><td>0</td><td>486,053</td><td>78.66</td><td>0.00</td><td>21.34</td></tr>
+          <tr><td>Fixed-256</td><td>1112</td><td>1,791,323</td><td>0</td><td>2,763,429</td><td>39.33</td><td>0.00</td><td>60.67</td></tr>
+          <tr><td>Fixed-512</td><td>2223</td><td>1,791,323</td><td>0</td><td>7,314,085</td><td>19.67</td><td>0.00</td><td>80.33</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Conclusion:</strong> Slotted-pages achieve 94.66% payload utilization with only 3.96% overhead and 1.38% waste, 
+      providing the best balance between space efficiency and flexibility for variable-length records. Fixed-length layouts 
+      suffer from significant wasted space, especially with larger record sizes.</p>
+    </section>
+
+    <section id="am" class="tab-panel">
+      <h2>AM Layer &amp; Indexing experiments</h2>
+      <p>We used the AM layer to build B+ tree indexes on the Student file using roll-no as the key. We compared
+      three approaches:</p>
+      <ol>
+        <li><strong>Post-build:</strong> Build index in a single bulk operation on an existing file.</li>
+        <li><strong>Incremental:</strong> Build incrementally by inserting records into an empty index file.</li>
+        <li><strong>Bulk-sorted:</strong> Bulk-loading an index when the source file is pre-sorted (optimized method discussed in class).</li>
+      </ol>
+
+      <p>We measured build time, logical operations, physical I/O, and cache performance for each approach. The bulk-sorted
+      method demonstrated significantly better performance with minimal I/O operations.</p>
+
+      <h3>Index Build Performance Comparison</h3>
+      <div class="stats-plot" style="max-width:700px;margin:0 auto;">
+        <div class="chart-controls" style="margin-bottom:16px;">
+          <label for="amMetricSelect">Select Metric:</label>
+          <select id="amMetricSelect" style="padding:8px;">
+            <option value="time">Build Time (seconds)</option>
+            <option value="logicalRead">Logical Reads</option>
+            <option value="logicalWrite">Logical Writes</option>
+            <option value="physicalRead">Physical Reads</option>
+            <option value="physicalWrite">Physical Writes</option>
+            <option value="hits">Cache Hits</option>
+            <option value="miss">Cache Misses</option>
+          </select>
+        </div>
+        <canvas id="amChart"></canvas>
+      </div>
+
+      <h3>Detailed Results (17,815 keys)</h3>
+      <table class="results">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Time (s)</th>
+            <th>Logical Reads</th>
+            <th>Logical Writes</th>
+            <th>Physical Reads</th>
+            <th>Physical Writes</th>
+            <th>Hits</th>
+            <th>Misses</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Post-build</td><td>0.0203</td><td>64,613</td><td>1,608</td><td>162</td><td>960</td><td>64,451</td><td>162</td></tr>
+          <tr><td>Incremental</td><td>0.0213</td><td>64,613</td><td>1,608</td><td>307</td><td>1,103</td><td>64,306</td><td>307</td></tr>
+          <tr><td>Bulk-sorted</td><td>0.0072</td><td>1</td><td>436</td><td>1</td><td>219</td><td>0</td><td>1</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Key Findings:</strong> The bulk-sorted approach is <strong>~3× faster</strong> than other methods, achieving 
+      0.0072s build time with drastically reduced I/O operations. Post-build and incremental methods show similar logical 
+      operation counts but differ in physical I/O patterns. Bulk-sorted requires minimal logical reads (just 1!) because 
+      the pre-sorted input allows sequential construction without tree traversals.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p><strong>Project by:</strong> Naman Soni (B23CS1094) &amp; Japneet Singh (B23CS1022)</p>
+    <p>For any suggestions or feedback , kindly contact us on our institute mail.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
